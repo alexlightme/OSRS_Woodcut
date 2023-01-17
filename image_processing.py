@@ -6,7 +6,7 @@ import cv2
 from PIL import Image, ImageGrab
 
 
-def color_change(image, item):
+def color_mask(image, item, rgb_boundries = None):
 
     red = ([0, 0, 180], [80, 80, 255])  # 0 Index
     green = ([0, 180, 0], [80, 255, 80])  # 1 Index
@@ -16,20 +16,20 @@ def color_change(image, item):
     green_tag = ([240, 230, 0], [255, 255, 0])  # 5 Index
     shrimp_tag = ([205, 205, 0], [205, 205, 0])  # 6 Index
 
-    object_list = [red, green, amber, pickup_high, attack_blue, green_tag, shrimp_tag]
-    boundaries = [object_list[item]]
 
-    # loop over the boundaries
-    for (lower, upper) in boundaries:
-        # create NumPy arrays from the boundaries
-        lower = np.array(lower, dtype="uint8")
-        upper = np.array(upper, dtype="uint8")
-        # find the colors within the specified boundaries and apply
-        # the mask
-        mask = cv2.inRange(np.array(image), lower, upper)
-        output = cv2.bitwise_and(np.array(image), np.array(image), mask=mask)
+    object_list = [red, green, amber, pickup_high, attack_blue, green_tag, shrimp_tag, rgb_boundries]
+    if rgb_boundries:
+        lower, upper = object_list[-1][0], object_list[-1][1]
+    else:
+        lower, upper = object_list[item][0], object_list[item][1]
 
-    return output
+    # create NumPy arrays from the boundaries
+    lower = np.array(lower, dtype="uint8")
+    upper = np.array(upper, dtype="uint8")
+    # find the colors within the specified boundaries and apply
+    # the mask
+    mask = cv2.inRange(np.array(image), lower, upper)
+    return mask
 
 
 

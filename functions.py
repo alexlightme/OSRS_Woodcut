@@ -11,6 +11,7 @@ from Scrap_functions import *
 import yaml
 from PIL import Image, ImageGrab
 import os
+from image_processing import color_mask
 
 global hwnd
 global iflag
@@ -469,49 +470,35 @@ def find_Object_closest(item, left=0, top=0, right=0, bottom=0, clicker='left', 
 def find_Object(item, left=0, top=0, right=0, bottom=0):
     screen_Image(left, top, right, bottom)
     image = cv2.imread('images/screenshot.png')
-    # image = cv2.rectangle(image, pt1=(900, 0), pt2=(1100, 200), color=(0, 0, 0), thickness=-1)
+    image = cv2.rectangle(image, pt1=(1100, 0), pt2=(1400, 200), color=(0, 0, 0), thickness=-1)
     # image = cv2.rectangle(image, pt1=(0, 0), pt2=(150, 100), color=(0, 0, 0), thickness=-1)
     # cv2.imwrite('images/screenshot3.png', image)
     # define the list of boundaries
     # B, G, R
-    show_images(image)
-    red = ([0, 0, 180], [80, 80, 255])  # 0 Index
-    green = ([0, 180, 0], [80, 255, 80])  # 1 Index
-    amber = ([0, 200, 200], [60, 255, 255])  # 2 Index
-    pickup_high = ([150, 0, 100], [255, 60, 160])  # 3 Index
-    attack_blue = ([200, 200, 0], [255, 255, 5])
-    green_tag = ([240, 230, 0], [255, 255, 0])  # 5 Index
-    shrimp_tag = ([205, 205, 0], [205, 205, 0])  # 6 Index
+    # cv2.imshow('Test', image)
+    # cv2.waitKey(0)
 
-    object_list = [red, green, amber, pickup_high, attack_blue, green_tag, shrimp_tag]
-    boundaries = [object_list[item]]
+    mask = color_mask(image, 5)
 
-    # loop over the boundaries
-    for (lower, upper) in boundaries:
-        # create NumPy arrays from the boundaries
-        lower = np.array(lower, dtype="uint8")
-        upper = np.array(upper, dtype="uint8")
-        # find the colors within the specified boundaries and apply
-        # the mask
-        mask = cv2.inRange(image, lower, upper)
-        output = cv2.bitwise_and(image, image, mask=mask)
-        ret, thresh = cv2.threshold(mask, 40, 255, 0)
-        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    output = cv2.bitwise_and(image, image, mask=mask)
+    ret, thresh = cv2.threshold(mask, 40, 255, cv2.THRESH_BINARY)
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_GRADIENT, np.ones((2,2), np.uint8))
+
+    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
     if len(contours) != 0:
         # print(len(contours))
         # find the biggest countour (c) by the area
         c = max(contours, key=cv2.contourArea)
         # print(contours)
         x, y, w, h = cv2.boundingRect(c)
-
-        x = random.randrange(x + 5, x + max(w - 5, 6)) + left  # 950,960
+        assert w > 30, "rect too small"
+        print((x + 15, x + w - 15))
+        x = random.randrange(x + 15, x + w - 15) + left  # 950,960
         # print('x: ', x)
-        y = random.randrange(y + 5, y + max(h - 5, 6)) + top  # 490,500
+        print((y + 15, y + w - 15))
+        y = random.randrange(y + 15, y + h - 15) + top  # 490,500
         # print('y: ', y)
-        b = random.uniform(0.2, 0.4)
-        pyautogui.moveTo(x, y, duration=b)
-        b = random.uniform(0.01, 0.05)
-        pyautogui.click(duration=b)
         return (x, y)
     else:
         return False

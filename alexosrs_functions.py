@@ -5,8 +5,9 @@ from functions import drop_item
 from functions import random_breaks
 from functions import find_Object
 from functions import get_runelite_dimensions
-from functions import get_runelite
-
+from multiprocess_funcs import *
+import pyautogui
+import random
 
 def drop_icon(icon):
     j = 0
@@ -41,6 +42,7 @@ def get_wood():
 
 def kill_tags():
     j = 0
+    print_Id()
     while j<10:
         dimensions = get_runelite_dimensions("PaulFoster")
         left_x = dimensions[0].x
@@ -48,8 +50,15 @@ def kill_tags():
         right_x = dimensions[1].x
         bottom_y = dimensions[0].y
 
-        find_Object(5,left_x, top_y, right_x, bottom_y)
+        mouse_coords = find_Object(5,left_x, top_y, right_x, bottom_y)
+        b = random.uniform(0.1, 0.2)
+        pyautogui.moveTo(mouse_coords[0], mouse_coords[1], duration=b)
+        b = random.uniform(0.01, 0.05)
+        pyautogui.click(duration=b)
+
         random_breaks(20, 15)
+
+
 def fish_shrimp():
     j = 0
     while j<10:
