@@ -1,12 +1,13 @@
 
 from alexosrs_functions import *
-from Livefeed import *
-from functions import get_runelite
+from Livefeed import start_RL_livefeed_v3
 from multiprocessing import Process
 from multiprocess_funcs import *
+import cProfile
+# import profile
 
-
-
+# profiling function ------ cProfile.runctx('start_RL_livefeed_v3()', globals(), locals())
+import pstats
 
 def main():
 
@@ -14,21 +15,16 @@ def main():
     print('process id:', os.getpid())
 
 
-    dimensions = get_runelite_dimensions("PaulFoster")
-    rl = get_runelite("PaulFoster")
-    left_x = dimensions[0].x
-    top_y = dimensions[2].y
-    right_x = dimensions[1].x
-    bottom_y = dimensions[0].y
-
-
     # p1 = Process(target=kill_tags)
     # p1.start()
+    # get_wood()
+    start_RL_livefeed_v3(10, post_processing=False)
+    # drop_icon("salmon_icon.png")
 
-    p2 = Process(target=start_RL_livefeed_v3, args=(rl.left,rl.top, rl.width, rl.height))
-    p2.start()
+    # p2 = Process(target=start_RL_livefeed_v3, args=(False, ))
+    # p2.start()
     # p1.join()
-    p2.join()
+    # p2.join()
 
 
 if __name__=="__main__":
